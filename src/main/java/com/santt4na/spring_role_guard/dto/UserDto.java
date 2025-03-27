@@ -1,5 +1,6 @@
 package com.santt4na.spring_role_guard.dto;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import lombok.Data;
@@ -12,5 +13,5 @@ public class UserDto {
   private String password;
   private String username;
   private Boolean isBlocked;
-  private Set<AccessRoleDto> accessRoles;
+  private Set<AccessRoleDto> accessRoles = new HashSet<>();
 }

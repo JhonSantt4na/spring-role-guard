@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.santt4na.spring_role_guard.dto.UserDto;
@@ -17,14 +18,24 @@ public class UserService {
 
   private UserRepository repository;
   private UserMapper mapper;
+  private final PasswordEncoder passwordEncoder;
+
+  public UserService(UserRepository repository, UserMapper mapper, PasswordEncoder passwordEncoder) {
+    this.repository = repository;
+    this.mapper = mapper;
+    this.passwordEncoder = passwordEncoder;
+  }
 
   public UserDto createUser(UserDto userDto) {
     User user = new User();
     user.setName(userDto.getName());
     user.setEmail(userDto.getEmail());
-    user.setPassword(userDto.getPassword());
     user.setUsername(userDto.getUsername());
+    user.setPassword(passwordEncoder.encode(userDto.getPassword())); // Codifica a senha
     user.setIsBlocked(userDto.getIsBlocked());
+
+    // Adicione esta linha para mapear as roles
+    user.setAccessRoles(mapper.toEntity(userDto).getAccessRoles());
 
     User savedUser = repository.save(user);
     return mapper.toDto(savedUser);
@@ -41,11 +52,6 @@ public class UserService {
 
     User updatedUser = repository.save(user);
     return mapper.toDto(updatedUser);
-  }
-
-  public UserService(UserRepository repository, UserMapper mapper) {
-    this.repository = repository;
-    this.mapper = mapper;
   }
 
   public List<UserDto> findAllUsers() {
